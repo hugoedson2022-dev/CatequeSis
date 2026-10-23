@@ -1,0 +1,46 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Turma {
+  id            String         @id @default(uuid())
+  nome          String         
+  diaSemana     String         
+  catequisandos Catequisando[]
+  encontros     Encontro[]
+}
+
+model Catequisando {
+  id             String     @id @default(uuid())
+  nomeCompleto   String
+  etapa          String     
+  turmaId        String
+  turma          Turma      @relation(fields: [turmaId], references: [id])
+  presencas      Presenca[]
+}
+
+model Encontro {
+  id        String     @id @default(uuid())
+  data      DateTime   @default(now())
+  fase      String     
+  tema      String     
+  turmaId   String
+  turma     Turma      @relation(fields: [turmaId], references: [id])
+  presencas Presenca[]
+}
+
+model Presenca {
+  id             String       @id @default(uuid())
+  encontroId     String
+  encontro       Encontro     @relation(fields: [encontroId], references: [id])
+  catequisandoId String
+  catequisando   Catequisando @relation(fields: [catequisandoId], references: [id])
+  status         String       @default("P") 
+  
+  @@unique([encontroId, catequisandoId])
+}
